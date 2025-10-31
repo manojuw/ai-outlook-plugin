@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import pLimit from "p-limit";
 import pRetry from "p-retry";
 
-// This is using Replit's AI Integrations service, which provides OpenAI-compatible API access without requiring your own OpenAI API key.
+// This uses an AI Integrations service that provides OpenAI-compatible API access without requiring your own OpenAI API key.
 const getOpenAIClient = () => {
   if (!process.env.AI_INTEGRATIONS_OPENAI_BASE_URL || !process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
     throw new Error('OpenAI AI Integrations not configured. Please set up the integration.');
