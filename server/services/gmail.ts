@@ -10,9 +10,9 @@ async function getAccessToken() {
   
   const hostname = process.env.CONNECTORS_HOSTNAME || process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xAuthToken = process.env.REPL_IDENTITY 
-    ? 'repl ' + process.env.REPL_IDENTITY 
+    ? 'dev ' + process.env.REPL_IDENTITY 
     : process.env.WEB_REPL_RENEWAL 
-    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+    ? 'prod ' + process.env.WEB_REPL_RENEWAL 
     : null;
 
   if (!xAuthToken) {
@@ -128,7 +128,7 @@ export async function getEmailsByCustomer(customerEmail: string, organizationDom
       body: body.substring(0, 2000), // Limit body length
       timestamp: new Date(fullMessage.data.internalDate ? parseInt(fullMessage.data.internalDate) : date).toISOString(),
       isFromOrganization,
-      threadId: fullMessage.data.threadId,
+      threadId: fullMessage.data.threadId || undefined,
     });
   }
 
@@ -196,7 +196,7 @@ export async function searchEmailsByAWB(awbNumber: string, organizationDomain: s
       body: body.substring(0, 2000),
       timestamp: new Date(fullMessage.data.internalDate ? parseInt(fullMessage.data.internalDate) : date).toISOString(),
       isFromOrganization,
-      threadId: fullMessage.data.threadId,
+      threadId: fullMessage.data.threadId || undefined,
     });
   }
 
