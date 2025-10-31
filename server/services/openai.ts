@@ -1,7 +1,7 @@
 // Based on blueprint: javascript_openai_ai_integrations
 import OpenAI from "openai";
 import pLimit from "p-limit";
-import pRetry from "p-retry";
+import pRetry, { AbortError } from "p-retry";
 
 // This uses an AI Integrations service that provides OpenAI-compatible API access without requiring your own OpenAI API key.
 const getOpenAIClient = () => {
@@ -102,7 +102,7 @@ Return your analysis as JSON in this exact format:
         if (isRateLimitError(error)) {
           throw error;
         }
-        throw new pRetry.AbortError(error);
+        throw new AbortError(error);
       }
     },
     {
@@ -219,7 +219,7 @@ Return as JSON:
         if (isRateLimitError(error)) {
           throw error;
         }
-        throw new pRetry.AbortError(error);
+        throw new AbortError(error);
       }
     },
     {
