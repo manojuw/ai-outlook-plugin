@@ -251,7 +251,22 @@ sudo certbot --nginx -d your-domain.com
 
 ## Installing the Outlook Plugin
 
-### Step 1: Create Manifest File
+### Local Development vs Production
+
+This repository includes two manifest files:
+
+- **`manifest.local.xml`** - Pre-configured for local development (http://localhost:5000)
+- **`manifest.xml`** - You need to create this for production deployment with your actual domain
+
+### For Local Development
+
+Use the included `manifest.local.xml` file which is already configured to point to `http://localhost:5000`.
+
+**Note:** Outlook Web may not load add-ins from `http://localhost` due to security restrictions. For testing in Outlook Web, you may need to:
+1. Use Outlook Desktop (Windows/Mac) which allows HTTP for development
+2. Or set up a local HTTPS proxy using tools like `ngrok` or `mkcert`
+
+### For Production Deployment
 
 Create a file named `manifest.xml` in your project root:
 
@@ -267,8 +282,8 @@ Create a file named `manifest.xml` in your project root:
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Customer Support AI"/>
   <Description DefaultValue="AI-powered customer support assistant"/>
-  <IconUrl DefaultValue="https://your-domain.com/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://your-domain.com/icon-64.png"/>
+  <IconUrl DefaultValue="https://your-domain.com/icon-32.svg"/>
+  <HighResolutionIconUrl DefaultValue="https://your-domain.com/icon-64.svg"/>
   <SupportUrl DefaultValue="https://your-domain.com/"/>
   <Hosts>
     <Host Name="Mailbox"/>
@@ -327,9 +342,9 @@ Create a file named `manifest.xml` in your project root:
     </Hosts>
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16x16" DefaultValue="https://your-domain.com/icon-16.png"/>
-        <bt:Image id="Icon.32x32" DefaultValue="https://your-domain.com/icon-32.png"/>
-        <bt:Image id="Icon.80x80" DefaultValue="https://your-domain.com/icon-80.png"/>
+        <bt:Image id="Icon.16x16" DefaultValue="https://your-domain.com/icon-16.svg"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://your-domain.com/icon-32.svg"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://your-domain.com/icon-80.svg"/>
       </bt:Images>
       <bt:Urls>
         <bt:Url id="Commands.Url" DefaultValue="https://your-domain.com/"/>
@@ -349,25 +364,33 @@ Create a file named `manifest.xml` in your project root:
 
 **Important:** Replace all instances of `https://your-domain.com` with your actual deployed URL.
 
-### Step 2: Sideload in Outlook Web
+### Sideload in Outlook Web
 
+**For Production:**
 1. Go to [Outlook Web](https://outlook.office.com)
 2. Click Settings (gear icon) → View all Outlook settings
 3. Navigate to "General" → "Manage add-ins"
 4. Click "My add-ins" in the left panel
 5. Under "Custom add-ins", click "+ Add a custom add-in" → "Add from file"
-6. Upload your `manifest.xml` file
+6. Upload your `manifest.xml` file (production version with your domain)
 7. Click "Install" to confirm
 
-### Step 3: Sideload in Outlook Desktop
+**For Local Development:**
+Outlook Web typically blocks HTTP add-ins. Use Outlook Desktop instead or set up local HTTPS.
 
+### Sideload in Outlook Desktop
+
+**For Local Development:**
 1. Open Outlook Desktop
 2. Go to File → Get Add-ins → My Add-ins
 3. Click "Add a custom add-in" → "Add from file"
-4. Select your `manifest.xml` file
+4. Select `manifest.local.xml` from the repository
 5. Click "OK" to install
 
-### Step 4: Test the Plugin
+**For Production:**
+1. Follow the same steps above but use your `manifest.xml` file
+
+### Test the Plugin
 
 1. Open any email in Outlook
 2. Look for "Customer Support AI" in the ribbon or add-in panel

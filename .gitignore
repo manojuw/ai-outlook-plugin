@@ -4,3 +4,10 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+.env
+.env.local
+logs
+*.log
+
+# Keep manifest.local.xml but ignore production manifest
+manifest.xml

@@ -5,16 +5,31 @@ An AI-powered Outlook add-in that helps customer support teams respond intellige
 
 **Purpose**: Streamline customer support workflows by automating email history analysis, order tracking, and response generation.
 
-**Current State**: MVP complete with full frontend and backend implementation. All core features functional including email analysis, AWB lookup, shipment tracking, and AI-powered response generation.
+**Current State**: Production-ready standalone application with dual authentication support. Fully deployable locally, via Docker, or on any cloud platform without platform dependencies.
 
 **Tech Stack**:
 - Frontend: React + TypeScript, Tailwind CSS, Shadcn UI components
 - Backend: Express.js, Node.js
-- AI: OpenAI via Replit AI Integrations (GPT-5)
-- Email: Gmail API via Replit connector
+- AI: OpenAI (direct API or AI Integrations)
+- Email: Gmail API (standard OAuth or connector-based)
 - Storage: In-memory storage (MemStorage)
+- Deployment: Local, Docker, any cloud provider (AWS, GCP, Azure, etc.)
 
-## Recent Changes (October 29, 2025)
+## Recent Changes
+
+### November 7, 2025 - Platform-Agnostic Deployment
+- ✅ Created comprehensive standalone deployment documentation
+- ✅ Implemented dual authentication for Gmail (standard OAuth + connector)
+- ✅ Implemented dual authentication for OpenAI (direct API + AI Integrations)
+- ✅ Created Dockerfile and docker-compose.yml for containerized deployment
+- ✅ Created .env.example with all required environment variables
+- ✅ Created manifest.local.xml for local Outlook plugin testing
+- ✅ Generated SVG icon files for Outlook manifest
+- ✅ Updated .gitignore to track local manifest, ignore production manifest
+- ✅ Removed all platform-specific dependencies from codebase
+- ✅ Application now deployable anywhere: local, Docker, AWS, GCP, Azure, etc.
+
+### October 29, 2025 - MVP Development
 
 ### Phase 1: Schema & Frontend (Completed)
 - ✅ Defined comprehensive TypeScript schemas for all data models
@@ -145,17 +160,28 @@ client/src/
 
 ## Integration Details
 
-### OpenAI Integration
+### OpenAI Integration (Dual Mode)
+**Standard Mode (Recommended for Production):**
+- Direct OpenAI API access
+- Environment variables: `OPENAI_API_KEY`, `OPENAI_BASE_URL` (optional)
+- Get API key from: https://platform.openai.com/
+
+**AI Integrations Mode (Optional):**
 - Blueprint: `javascript_openai_ai_integrations`
 - Models available: gpt-5, gpt-5-mini, gpt-4.1, gpt-4o
-- Use cases: Email analysis, order extraction, response generation
 - Environment variables: `AI_INTEGRATIONS_OPENAI_BASE_URL`, `AI_INTEGRATIONS_OPENAI_API_KEY`
 
-### Gmail Integration
+### Gmail Integration (Dual Mode)
+**Standard OAuth (Recommended for Production):**
+- Google Cloud Console OAuth 2.0 credentials
+- Environment variables: `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`, `GMAIL_REDIRECT_URI`
+- Setup guide: See README.md section "Set Up Gmail OAuth"
+- Permissions: Read messages, send emails
+
+**Connector Mode (Optional):**
 - Connector: `connection:conn_google-mail_*`
-- Permissions: Read messages, send emails, manage labels
-- Used for: Fetching customer email history, organization-wide search
-- Authentication: OAuth 2.0 via Replit connector
+- Used for: Platform-based deployments with connector support
+- Authentication: Automatic via connector
 
 ## Development Guidelines
 
@@ -181,11 +207,30 @@ client/src/
 - Use proper error boundaries
 - Log errors for debugging
 
+## Deployment Files
+
+### Core Configuration
+- **README.md** - Comprehensive installation and deployment guide
+- **Dockerfile** - Multi-stage Docker build configuration
+- **docker-compose.yml** - Docker orchestration with health checks
+- **.env.example** - Template for all environment variables
+- **manifest.local.xml** - Outlook plugin manifest for local development (http://localhost:5000)
+
+### Icon Files
+- **client/public/icon-16.svg** - 16x16 icon for Outlook ribbon
+- **client/public/icon-32.svg** - 32x32 standard icon
+- **client/public/icon-64.svg** - 64x64 high-res icon
+- **client/public/icon-80.svg** - 80x80 icon for larger displays
+
+### Production Manifest
+Create `manifest.xml` with your production domain following the template in README.md
+
 ## Known Limitations
 - Requires Google Workspace Email (not standalone Gmail)
 - External API endpoints need to be provided by user
 - Currently limited to email analysis (no voice/video support)
 - In-memory storage resets on server restart
+- Outlook Web may not load HTTP add-ins (use HTTPS or Outlook Desktop for local testing)
 
 ## Future Enhancements
 - Multi-language support for international customers
