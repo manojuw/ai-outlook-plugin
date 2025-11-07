@@ -3,15 +3,25 @@ import OpenAI from "openai";
 import pLimit from "p-limit";
 import pRetry, { AbortError } from "p-retry";
 
-// This uses an AI Integrations service that provides OpenAI-compatible API access without requiring your own OpenAI API key.
+// Supports both direct OpenAI API and AI Integrations service
 const getOpenAIClient = () => {
-  if (!process.env.AI_INTEGRATIONS_OPENAI_BASE_URL || !process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
-    throw new Error('OpenAI AI Integrations not configured. Please set up the integration.');
+  // Check for AI Integrations first (connector-based)
+  if (process.env.AI_INTEGRATIONS_OPENAI_BASE_URL && process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
+    return new OpenAI({
+      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+    });
   }
-  return new OpenAI({
-    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
-  });
+  
+  // Fall back to standard OpenAI API
+  if (process.env.OPENAI_API_KEY) {
+    return new OpenAI({
+      baseURL: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+      apiKey: process.env.OPENAI_API_KEY
+    });
+  }
+  
+  throw new Error('OpenAI configuration not found. Please set OPENAI_API_KEY or configure AI Integrations.');
 };
 
 // Helper function to check if error is rate limit or quota violation

@@ -1,13 +1,42 @@
-// Based on blueprint: google-mail
 import { google } from 'googleapis';
 
-let connectionSettings: any;
+let cachedCredentials: any = null;
+let tokenExpiryTime: number = 0;
 
-async function getAccessToken() {
-  if (connectionSettings && connectionSettings.settings.expires_at && new Date(connectionSettings.settings.expires_at).getTime() > Date.now()) {
-    return connectionSettings.settings.access_token;
-  }
+// Check if we're using standard OAuth or connector-based auth
+function isUsingStandardOAuth(): boolean {
+  return !!(process.env.GMAIL_CLIENT_ID && 
+            process.env.GMAIL_CLIENT_SECRET && 
+            process.env.GMAIL_REFRESH_TOKEN);
+}
+
+async function getAccessTokenStandardOAuth() {
+  const now = Date.now();
   
+  // Return cached token if still valid
+  if (cachedCredentials && tokenExpiryTime > now + 60000) {
+    return cachedCredentials.access_token;
+  }
+
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GMAIL_CLIENT_ID,
+    process.env.GMAIL_CLIENT_SECRET,
+    process.env.GMAIL_REDIRECT_URI
+  );
+
+  oauth2Client.setCredentials({
+    refresh_token: process.env.GMAIL_REFRESH_TOKEN
+  });
+
+  // Refresh the access token
+  const { credentials } = await oauth2Client.refreshAccessToken();
+  cachedCredentials = credentials;
+  tokenExpiryTime = credentials.expiry_date || (now + 3600000); // Default 1 hour
+
+  return credentials.access_token;
+}
+
+async function getAccessTokenConnector() {
   const hostname = process.env.CONNECTORS_HOSTNAME || process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xAuthToken = process.env.REPL_IDENTITY 
     ? 'dev ' + process.env.REPL_IDENTITY 
@@ -19,7 +48,7 @@ async function getAccessToken() {
     throw new Error('Authentication token not found');
   }
 
-  connectionSettings = await fetch(
+  const connectionSettings = await fetch(
     'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=google-mail',
     {
       headers: {
@@ -29,12 +58,22 @@ async function getAccessToken() {
     }
   ).then(res => res.json()).then(data => data.items?.[0]);
 
-  const accessToken = connectionSettings?.settings?.access_token || connectionSettings.settings?.oauth?.credentials?.access_token;
+  const accessToken = connectionSettings?.settings?.access_token || 
+                     connectionSettings?.settings?.oauth?.credentials?.access_token;
 
   if (!connectionSettings || !accessToken) {
-    throw new Error('Gmail not connected');
+    throw new Error('Gmail connector not configured');
   }
+  
   return accessToken;
+}
+
+async function getAccessToken() {
+  if (isUsingStandardOAuth()) {
+    return getAccessTokenStandardOAuth();
+  } else {
+    return getAccessTokenConnector();
+  }
 }
 
 // WARNING: Never cache this client.
